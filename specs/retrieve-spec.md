@@ -45,7 +45,7 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *Describe how you will use `_collection.query()` to find relevant chunks. What arguments will you pass, and why?*
 
 ```
-[your answer here]
+I will use `_collection.query()` to take the user's query (in a list), 3 results to return, and a specification to return me the text (documents), where it came from (metadatas), and their similarity scores to the input query (distances). The top 3 chunks with the most relevant information (lowest distances) should be returned. I want 3 because it seems like a decent number of chunks to sift through and find a valuable answer.
 ```
 
 ---
@@ -55,7 +55,10 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *Sketch out what one item in your return list looks like as a concrete example. Where does each field come from in the query results?*
 
 ```
-[your answer here]
+It will return a list of dicts, each with:
+      - "documents"     : chunks of text (pulled from each embedding's document field)
+      - "metadatas"     : the game names (pulled from each embedding's metadatas field)
+      - "distances" : the similarity scores (lower = more similar for cosine; calculated)
 ```
 
 ---
@@ -65,7 +68,7 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *`_collection.query()` returns nested lists. Describe what index you need to access to get the actual list of results for a single query, and why the nesting exists.*
 
 ```
-[your answer here]
+Use [0]. The nesting exists because the function can be used for multiple query searches. But we are only using one per call.
 ```
 
 ---
@@ -75,7 +78,8 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *Will you filter out results above a certain distance score, or return all `n_results` regardless of how relevant they are? What are the tradeoffs of each approach?*
 
 ```
-[your answer here]
+It would be better to have a light threshold so something comepletely off does not make it into the retrieved list. If this is the case, it may be best to have n_results not just be 1-2. You want slightly more ranking leeway in case scores are too similar (ex: threshold of 0.5 where you had n_results set to 2 but 3 results had a distance of 0.5; all 3 might be helpful to consider). 
+Not having a cutoff would leave more room for hallucination.
 ```
 
 ---
@@ -97,10 +101,10 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 **Test query and top result returned:**
 
 ```
-Query: [your test query]
-Top result game: [game name]
-Distance score: [score]
-Does it make sense? [yes / no / explain]
+Query: What happens if you roll a 7 in Catan?
+Top result game: Catan
+Distance score: 0.471
+Does it make sense? Yes
 ```
 
 **One thing about the query results that surprised you:**

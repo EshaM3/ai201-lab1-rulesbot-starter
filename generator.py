@@ -35,5 +35,4 @@ def generate_response(query, retrieved_chunks):
             "Try rephrasing your question — or check that your ingestion pipeline is working."
         )
 
-    # Your implementation here.
-    return "⚙️ Response generation not yet implemented. Complete Milestone 3 to activate answers."
+    return "⚙️ You are a board-game rules assistant. Answer the user's question using only the retrieved rule chunks below.\n Do not invent new information or rely on your general knowledge about board games.\n If the answer is not contained in the retrieved rule text, respond with: I couldn't find the answer in the loaded rule books.\n Clearly identify which game the answer comes from."
