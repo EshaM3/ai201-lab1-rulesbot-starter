@@ -35,4 +35,34 @@ def generate_response(query, retrieved_chunks):
             "Try rephrasing your question — or check that your ingestion pipeline is working."
         )
 
-    return "⚙️ You are a board-game rules assistant. Answer the user's question using only the retrieved rule chunks below.\n Do not invent new information or rely on your general knowledge about board games.\n If the answer is not contained in the retrieved rule text, respond with: I couldn't find the answer in the loaded rule books.\n Clearly identify which game the answer comes from."
+    # Build the context block: one labeled, delimited source per chunk,
+    # tagged with its game name and distance score.
+    context_blocks = []
+    for i, chunk in enumerate(retrieved_chunks, start=1):
+        context_blocks.append(
+            f"[Source {i} - Game: {chunk['game']}]\n"
+            f"[Distance score: {chunk['distance']:.3f}]\n"
+            f"{chunk['text']}\n"
+            f"---"
+        )
+    context = "\n".join(context_blocks)
+
+    system_prompt = (
+        "Using only the evidence given here:\n\n"
+        "Provide an answer to answer the query. Do NOT use any information "
+        "outside of the given evidence to support your answer. If you cannot "
+        "provide an answer given the evidence, just say that you cannot answer "
+        "the question. Clearly identify which game the answer comes from."
+    )
+
+    user_prompt = f"Question: {query}\n\nRetrieved rules:\n{context}"
+
+    response = _client.chat.completions.create(
+        model=LLM_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    )
+
+    return response.choices[0].message.content
